@@ -1,0 +1,20 @@
+{
+  "listen_host": "0.0.0.0",
+  "listen_port": 8765,
+  "local_name": "MacWorkstation",
+  "remote_name": "WindowsWorkstation",
+  "remote_ip": "192.168.0.50",
+  "remote_mac": "00:11:22:33:44:55",
+  "remote_agent_port": 8766,
+  "remote_device_id": "AAAAAAA-BBBBBBB-CCCCCCC-DDDDDDD-EEEEEEE-FFFFFFF-GGGGGGG-HHHHHHH",
+  "local_device_id": "IIIIIII-JJJJJJJ-KKKKKKK-LLLLLLL-MMMMMMM-NNNNNNN-OOOOOOO-PPPPPPP",
+  "syncthing_folder_id": "lan-sync",
+  "syncthing_url": "http://127.0.0.1:8384",
+  "sync_root": "/Users/YOUR_USER/Sync",
+  "remote_project_base": "D:\\LanSyncProjects",
+  "mac_ip": "192.168.0.10",
+  "mac_mac": "aa:bb:cc:dd:ee:ff",
+  "github_repo": "YOUR_GITHUB_USER/RedLanSyncDashboard",
+  "current_version": "0.1.0",
+  "shared_token": ""
+}

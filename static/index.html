@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Red5090 / RedM3Max LAN Sync</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">R</span>
+        <div>
+          <strong>Red Sync</strong>
+          <span>Red5090 / RedM3Max</span>
+        </div>
+      </div>
+      <nav class="nav-tabs" aria-label="Control panel">
+        <button class="nav-tab is-active" data-tab="overview" type="button">
+          <span aria-hidden="true">◎</span><span data-i18n="navOverview">总览</span>
+        </button>
+        <button class="nav-tab" data-tab="naming" type="button">
+          <span aria-hidden="true">Aa</span><span data-i18n="navNaming">命名检查</span>
+        </button>
+        <button class="nav-tab" data-tab="devices" type="button">
+          <span aria-hidden="true">⌁</span><span data-i18n="navDevices">设备</span>
+        </button>
+        <button class="nav-tab" data-tab="storage" type="button">
+          <span aria-hidden="true">▰</span><span data-i18n="navStorage">存储</span>
+        </button>
+        <button class="nav-tab" data-tab="pairing" type="button">
+          <span aria-hidden="true">＋</span><span data-i18n="navPairing">配对</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="lastRefresh">尚未刷新</span>
+        <a href="http://127.0.0.1:8384" target="_blank" rel="noreferrer" data-i18n="syncthingLink">Syncthing 管理页 ↗</a>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">LAN PROJECT CONTROL</p>
+          <h1 id="pageTitle">同步总览</h1>
+        </div>
+        <div class="topbar-actions">
+          <label class="language-switch">
+            <span data-i18n="languageLabel">语言</span>
+            <select id="languageSelect" aria-label="Language">
+              <option value="zh">中文</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+          <span class="live-pill"><i id="liveDot"></i><span id="liveLabel">连接中</span></span>
+          <button class="icon-button" id="refreshButton" type="button" title="立即刷新" aria-label="立即刷新">↻</button>
+        </div>
+      </header>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <aside id="updateBubble" class="update-bubble is-hidden" aria-live="polite">
+        <button class="update-close" id="dismissUpdateBubble" type="button" aria-label="Dismiss update">×</button>
+        <span class="status-badge safe" data-i18n="updatePreviewBadge">更新预览</span>
+        <strong id="updateTitle">--</strong>
+        <p id="updatePreview">--</p>
+        <a id="updateLink" href="#" target="_blank" rel="noreferrer" data-i18n="viewUpdate">查看 GitHub 更新</a>
+      </aside>
+
+      <section class="tab-panel is-active" data-panel="overview">
+        <div class="summary-strip">
+          <div>
+            <span data-i18n="summaryCompletion">同步完成度</span>
+            <strong id="syncPercent">--</strong>
+          </div>
+          <div>
+            <span data-i18n="summaryNeed">待同步</span>
+            <strong id="needBytes">--</strong>
+          </div>
+          <div>
+            <span data-i18n="summaryConnection">连接方式</span>
+            <strong id="connectionType">--</strong>
+          </div>
+          <div>
+            <span data-i18n="summaryFolder">文件夹状态</span>
+            <strong id="folderState">--</strong>
+          </div>
+        </div>
+
+        <div class="progress-track" aria-label="Sync progress">
+          <span id="syncProgress"></span>
+        </div>
+
+        <div class="sync-actions">
+          <button class="button primary resume" id="resumeSyncButton" type="button" data-i18n="resumeSync">继续当前同步</button>
+          <span id="resumeSyncHint" class="muted" data-i18n="resumeSyncHint">恢复暂停项并重新扫描当前同步文件夹</span>
+        </div>
+
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">DEVICES</p>
+            <h2 data-i18n="devicePairStatus">双端状态</h2>
+          </div>
+          <span id="syncHeadline" class="muted">正在读取 Syncthing</span>
+        </div>
+
+        <div class="device-grid">
+          <article class="device-card">
+            <div class="device-card-head">
+              <div class="device-icon">M3</div>
+              <div>
+                <h3 id="localName">RedM3Max</h3>
+                <p id="localHost">macOS</p>
+              </div>
+              <span id="localState" class="status-badge neutral">读取中</span>
+            </div>
+            <dl class="device-facts">
+              <div><dt data-i18n="idleTime">空闲时间</dt><dd id="localIdle">--</dd></div>
+              <div><dt data-i18n="systemLabel">系统</dt><dd id="localOs">--</dd></div>
+            </dl>
+          </article>
+
+          <article class="device-card">
+            <div class="device-card-head">
+              <div class="device-icon windows">W</div>
+              <div>
+                <h3 id="remoteName">Red5090</h3>
+                <p id="remoteHost">Windows</p>
+              </div>
+              <span id="remoteState" class="status-badge neutral">读取中</span>
+            </div>
+            <dl class="device-facts">
+              <div><dt data-i18n="companionAgent">伴随代理</dt><dd id="agentState">--</dd></div>
+              <div><dt data-i18n="lastOnline">最后在线</dt><dd id="remoteLastSeen">--</dd></div>
+            </dl>
+          </article>
+        </div>
+
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">ACTIVE JOB</p>
+            <h2 data-i18n="recentJobs">最近任务</h2>
+          </div>
+        </div>
+        <div id="jobList" class="job-list">
+          <div class="empty-state" data-i18n="emptyJobs">当前没有后台任务</div>
+        </div>
+      </section>
+
+      <section class="tab-panel" data-panel="naming">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">CROSS-PLATFORM NAMES</p>
+            <h2 data-i18n="namingTitle">工程命名审计</h2>
+          </div>
+          <span class="status-badge safe" data-i18n="sourceUntouched">原文件不改动</span>
+        </div>
+
+        <form id="auditForm" class="form-grid">
+          <label class="field field-wide">
+            <span data-i18n="sourceFolder">源工程文件夹</span>
+            <input id="sourcePath" name="source" autocomplete="off" required>
+          </label>
+          <label class="field field-wide">
+            <span data-i18n="normalizedCopy">规范化副本位置</span>
+            <input id="destinationPath" name="destination" autocomplete="off" required>
+          </label>
+          <label class="check-field">
+            <input id="keepSpaces" type="checkbox">
+            <span data-i18n="keepSpaces">保留空格</span>
+          </label>
+          <div class="form-actions">
+            <button class="button secondary" id="auditButton" type="submit" data-i18n="scanNames">扫描命名</button>
+            <button class="button primary" id="normalizeButton" type="button" disabled data-i18n="createSafeCopy">创建安全副本</button>
+          </div>
+        </form>
+
+        <div id="auditSummary" class="audit-summary is-hidden">
+          <div class="metric-row">
+            <div><span data-i18n="auditTotal">扫描条目</span><strong id="auditTotal">0</strong></div>
+            <div><span data-i18n="auditRenamed">需要改名</span><strong id="auditRenamed">0</strong></div>
+            <div><span data-i18n="auditCollisions">冲突消解</span><strong id="auditCollisions">0</strong></div>
+            <div><span data-i18n="auditSkipped">跳过</span><strong id="auditSkipped">0</strong></div>
+          </div>
+          <div id="reasonChips" class="reason-chips"></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th data-i18n="originalPath">原路径</th><th data-i18n="safePath">规范路径</th><th data-i18n="reason">原因</th></tr>
+              </thead>
+              <tbody id="auditExamples"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="normalizeProgress" class="operation-panel is-hidden">
+          <div class="operation-head">
+            <div>
+              <span id="normalizeStatus">准备中</span>
+              <strong id="normalizeMessage">--</strong>
+            </div>
+            <strong id="normalizePercent">0%</strong>
+          </div>
+          <div class="progress-track"><span id="normalizeProgressBar"></span></div>
+          <p id="normalizeDestination" class="mono muted"></p>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">NEW SYNC TASK</p>
+            <h2 data-i18n="quickSyncTitle">新增同步文件夹</h2>
+          </div>
+          <span class="muted" data-i18n="quickSyncHint">为新工程同时指定 Mac 与 Windows 端路径</span>
+        </div>
+        <form id="quickRegisterForm" class="form-grid">
+          <label class="field field-wide">
+            <span data-i18n="macProjectPath">Mac 工程路径</span>
+            <input id="quickProjectLocalPath" autocomplete="off" required>
+          </label>
+          <label class="field">
+            <span data-i18n="folderId">文件夹 ID</span>
+            <input id="quickProjectFolderId" autocomplete="off" placeholder="motion-project-02" required>
+          </label>
+          <label class="field">
+            <span data-i18n="displayName">显示名称</span>
+            <input id="quickProjectLabel" autocomplete="off" placeholder="Motion Project 02">
+          </label>
+          <label class="field field-wide">
+            <span data-i18n="windowsProjectPath">Windows 工程路径</span>
+            <input id="quickProjectRemotePath" autocomplete="off" placeholder="D:\LanSyncProjects\Motion_Project_02" required>
+          </label>
+          <div class="form-actions split-actions">
+            <button class="button secondary" id="useDestinationForSync" type="button" data-i18n="useNormalizedCopy">使用规范化副本路径</button>
+            <button class="button primary" id="quickRegisterButton" type="submit" data-i18n="addSyncFolder">新增同步文件夹</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="tab-panel" data-panel="devices">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">POWER & PRESENCE</p>
+            <h2 data-i18n="powerTitle">设备电源状态</h2>
+          </div>
+          <button class="button wake" id="wakeButton" type="button"><span aria-hidden="true">⚡</span> <span data-i18n="wakeRemote">唤醒 Red5090</span></button>
+        </div>
+
+        <div class="state-timeline">
+          <div class="state-row">
+            <span class="state-node" id="localStateNode"></span>
+            <div>
+              <strong id="deviceLocalTitle">RedM3Max</strong>
+              <p id="deviceLocalDetail">读取本机状态</p>
+            </div>
+          </div>
+          <div class="state-row">
+            <span class="state-node" id="remoteStateNode"></span>
+            <div>
+              <strong id="deviceRemoteTitle">Red5090</strong>
+              <p id="deviceRemoteDetail">等待远端响应</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="notice warning">
+          <strong data-i18n="powerBoundaryTitle">电源边界</strong>
+          <span data-i18n="powerBoundaryBody">没有伴随代理时，休眠、关机与网络断开只能显示为“离线/未知”。两台电脑同时休眠时，没有在线设备可发送唤醒包。</span>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-block">
+            <span data-i18n="windowsIp">Windows IP</span>
+            <strong id="remoteIp">--</strong>
+          </div>
+          <div class="detail-block">
+            <span data-i18n="windowsMac">Windows MAC</span>
+            <strong id="remoteMac">--</strong>
+          </div>
+          <div class="detail-block">
+            <span data-i18n="directConnection">Syncthing 直连</span>
+            <strong id="directConnection">--</strong>
+          </div>
+          <div class="detail-block">
+            <span data-i18n="agentPort">伴随代理端口</span>
+            <strong id="agentPort">--</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" data-panel="storage">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">PROJECT STORAGE</p>
+            <h2 data-i18n="storageTitle">磁盘与工程位置</h2>
+          </div>
+          <button class="icon-button" id="refreshDisksButton" type="button" title="刷新磁盘" aria-label="刷新磁盘">↻</button>
+        </div>
+
+        <div class="storage-columns">
+          <div>
+            <h3>RedM3Max</h3>
+            <div id="localDisks" class="disk-list"><div class="empty-state" data-i18n="loading">读取中</div></div>
+          </div>
+          <div>
+            <h3>Red5090</h3>
+            <div id="remoteDisks" class="disk-list"><div class="empty-state" data-i18n="needsWindowsAgent">需要 Windows 伴随代理</div></div>
+          </div>
+        </div>
+
+        <form id="targetForm" class="inline-form">
+          <label class="field">
+            <span data-i18n="windowsProjectBase">Windows 默认工程根目录</span>
+            <input id="remoteTargetBase" autocomplete="off" placeholder="D:\LanSyncProjects">
+          </label>
+          <button class="button secondary" type="submit" data-i18n="saveTarget">保存目标位置</button>
+        </form>
+
+        <div class="section-divider"></div>
+
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">NEW SYNC FOLDER</p>
+            <h2 data-i18n="registerProjectTitle">注册独立工程</h2>
+          </div>
+        </div>
+        <form id="registerForm" class="form-grid">
+          <label class="field field-wide">
+            <span data-i18n="macProjectPath">Mac 工程路径</span>
+            <input id="projectLocalPath" autocomplete="off" required>
+          </label>
+          <label class="field">
+            <span data-i18n="folderId">文件夹 ID</span>
+            <input id="projectFolderId" autocomplete="off" placeholder="motion-project-01" required>
+          </label>
+          <label class="field">
+            <span data-i18n="displayName">显示名称</span>
+            <input id="projectLabel" autocomplete="off" placeholder="Motion Project 01">
+          </label>
+          <label class="field field-wide">
+            <span data-i18n="windowsProjectPath">Windows 工程路径</span>
+            <input id="projectRemotePath" autocomplete="off" placeholder="D:\LanSyncProjects\Motion_Project_01" required>
+          </label>
+          <div class="form-actions">
+            <button class="button primary" id="registerButton" type="submit" data-i18n="registerSyncthing">注册到双端 Syncthing</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="tab-panel" data-panel="pairing">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">PAIR NEW DEVICE</p>
+            <h2 data-i18n="pairingTitle">新设备加入</h2>
+          </div>
+          <button class="icon-button" id="pairingRefreshButton" type="button" title="刷新配对信息" aria-label="刷新配对信息">↻</button>
+        </div>
+
+        <div class="pairing-grid">
+          <article class="device-card">
+            <h3 data-i18n="controllerAccess">控制台入口</h3>
+            <div id="controllerUrls" class="link-list"><div class="empty-state" data-i18n="loading">读取中</div></div>
+            <div class="copy-row">
+              <button class="button secondary" id="copyDashboardUrl" type="button" data-i18n="copyLanUrl">复制局域网地址</button>
+              <button class="button secondary" id="copyControllerId" type="button" data-i18n="copyDeviceId">复制本机设备 ID</button>
+            </div>
+          </article>
+
+          <article class="device-card">
+            <h3 data-i18n="sharedFolder">共享文件夹</h3>
+            <dl class="pair-facts">
+              <div><dt data-i18n="folderId">文件夹 ID</dt><dd id="pairFolderId">--</dd></div>
+              <div><dt data-i18n="folderPath">本机路径</dt><dd id="pairFolderPath">--</dd></div>
+              <div><dt data-i18n="deviceId">本机设备 ID</dt><dd id="controllerDeviceId">--</dd></div>
+            </dl>
+          </article>
+        </div>
+
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">ONE-CLICK LOCAL APPROVAL</p>
+            <h2 data-i18n="approveDeviceTitle">添加并共享给新设备</h2>
+          </div>
+        </div>
+        <form id="addDeviceForm" class="form-grid">
+          <label class="field">
+            <span data-i18n="newDeviceName">新设备名称</span>
+            <input id="newDeviceName" autocomplete="off" placeholder="Studio Laptop" required>
+          </label>
+          <label class="field">
+            <span data-i18n="newDeviceAddress">连接地址</span>
+            <input id="newDeviceAddress" autocomplete="off" placeholder="dynamic">
+          </label>
+          <label class="field field-wide">
+            <span data-i18n="newDeviceId">Syncthing 设备 ID</span>
+            <input id="newDeviceId" autocomplete="off" placeholder="AAAAAAA-BBBBBBB-CCCCCCC-DDDDDDD-EEEEEEE-FFFFFFF-GGGGGGG-HHHHHHH" required>
+          </label>
+          <div class="form-actions">
+            <button class="button primary" id="addDeviceButton" type="submit" data-i18n="addDeviceButton">添加设备并共享 lan-sync</button>
+          </div>
+        </form>
+
+        <div class="pairing-grid lower">
+          <article class="device-card">
+            <h3 data-i18n="knownDevices">已知设备</h3>
+            <div id="pairKnownDevices" class="compact-list"><div class="empty-state" data-i18n="loading">读取中</div></div>
+          </article>
+          <article class="device-card">
+            <h3 data-i18n="pendingDevices">待确认设备</h3>
+            <div id="pendingDevices" class="compact-list"><div class="empty-state" data-i18n="nonePending">暂无待确认设备</div></div>
+          </article>
+        </div>
+
+        <div class="notice warning">
+          <strong data-i18n="mobileLimitTitle">手机说明</strong>
+          <span data-i18n="mobileLimitBody">Android 可以通过 Syncthing 客户端加入同步；iPhone/iPad 通常只能打开这个控制台查看和触发操作，iOS 不适合做常驻 Syncthing 文件节点。</span>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
