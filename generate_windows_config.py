@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import secrets
 
-from server import DEFAULT_CONFIG, dashboard_alias
+from server import DEFAULT_CONFIG, dashboard_alias, local_ip_candidates
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -66,6 +66,21 @@ def load_config(path: Path) -> dict:
     return config
 
 
+def resolve_mac_ip(config: dict, config_path: Path) -> str:
+    mac_ip = str(config.get("mac_ip") or "").strip()
+    if mac_ip:
+        return mac_ip
+    candidates = local_ip_candidates(config)
+    if not candidates:
+        return ""
+    mac_ip = candidates[0]
+    config["mac_ip"] = mac_ip
+    stored = load_json(config_path)
+    stored["mac_ip"] = mac_ip
+    save_json(config_path, {**config, **stored})
+    return mac_ip
+
+
 def auth_url(base_url: str, token: str) -> str:
     from urllib.parse import quote
 
@@ -90,9 +105,10 @@ def main() -> int:
 
     config_path = resolve_config_path(args.config or "")
     config = load_config(config_path)
+    mac_ip = resolve_mac_ip(config, config_path)
     alias = dashboard_alias(config)
     payload = {
-        "DashboardUrl": "http://{}:{}".format(config["mac_ip"], config["listen_port"]),
+        "DashboardUrl": "http://{}:{}".format(mac_ip, config["listen_port"]),
         "DashboardAlias": alias,
         "DashboardAliasUrl": "http://{}:{}".format(alias, config["listen_port"]) if alias else "",
         "Token": config["shared_token"],
@@ -102,7 +118,7 @@ def main() -> int:
         "MacDeviceId": config["local_device_id"],
         "WindowsDeviceId": config["remote_device_id"],
         "MacMac": config["mac_mac"],
-        "MacIp": config["mac_ip"],
+        "MacIp": mac_ip,
     }
     output = Path(args.output).expanduser().resolve()
     output.parent.mkdir(parents=True, exist_ok=True)

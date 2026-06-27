@@ -50,20 +50,19 @@ SystemSync is a local-first LAN control panel for a Mac/Windows Syncthing pair. 
 
 ## Clone 快速复刻 / Clone Quick Setup
 
-第一次 clone 后先运行预检，再复制配置文件。预检会检查 Python、配置占位符、Windows companion 包、Syncthing API、Unity Editor 和 Adobe 应用检测能力。
+第一次 clone 后，Mac 控制端运行 `./setup.sh`。它会创建缺省配置、安装后台服务、刷新 Dock 入口、生成 Windows 配对包，并在 `sync_root` 存在时把 Windows 工具包复制到 `_tools/SystemSyncWindows`。
 
-After cloning for the first time, run preflight before copying the config. Preflight checks Python, config placeholders, the Windows companion package, Syncthing API, Unity Editor detection, and Adobe app detection.
+After cloning for the first time, run `./setup.sh` on the Mac controller. It creates the default config, installs the background service, refreshes the Dock launcher, generates the Windows pairing package, and copies the Windows tools to `_tools/SystemSyncWindows` when `sync_root` exists.
 
 ```sh
 git clone https://github.com/RedHong01/SystemSync.git
 cd SystemSync
-python3 scripts/preflight.py
-cp config.example.json config.json
+./setup.sh
 ```
 
-然后填写设备 ID、局域网地址和同步路径。完整流程见 [Clone 复刻部署 / Clone setup](docs/CLONE_SETUP.md)。
+然后填写或确认设备 ID、局域网地址和同步路径。完整流程见 [Clone 复刻部署 / Clone setup](docs/CLONE_SETUP.md)。
 
-Then fill in your device IDs, LAN addresses, and sync paths. See [Clone 复刻部署 / Clone setup](docs/CLONE_SETUP.md) for the full flow.
+Then fill in or confirm your device IDs, LAN addresses, and sync paths. See [Clone 复刻部署 / Clone setup](docs/CLONE_SETUP.md) for the full flow.
 
 ```sh
 python3 server.py
@@ -83,13 +82,13 @@ After installing the Windows companion, click the smart launcher on the desktop 
 http://192.168.0.243:8765
 ```
 
-安装为登录后自动启动服务 / Install as a login service:
+手动安装为登录后自动启动服务 / Manual login-service install:
 
 ```sh
 ./install-mac-service.sh
 ```
 
-可选 Dock 智能启动器 / Optional Dock smart launcher:
+手动刷新 Dock 智能启动器 / Manual Dock smart launcher refresh:
 
 ```sh
 ./mac/install-dock-shortcut.sh
@@ -97,9 +96,9 @@ http://192.168.0.243:8765
 
 ## Windows 伴随服务 / Windows Companion
 
-在 Mac 上生成配对后的 Windows 配置：
+`./setup.sh` 会自动生成配对后的 Windows 配置；手动兜底命令是：
 
-Generate the paired Windows config on the Mac:
+`./setup.sh` automatically generates the paired Windows config on the Mac; the manual fallback command is:
 
 ```sh
 python3 generate_windows_config.py
@@ -107,15 +106,15 @@ python3 generate_windows_config.py
 
 把 `windows` 文件夹复制到 Windows 电脑，在该文件夹内用管理员 PowerShell 运行：
 
-Copy the `windows` folder to the Windows computer, open Administrator PowerShell in that folder, and run:
+Copy the `windows` folder to the Windows computer, open PowerShell in that folder, and run:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\install-agent.ps1
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
 ```
 
-Companion 默认监听 TCP 8766，用于回报设备/磁盘状态、记录 Windows 可暴露的电源事件，并在选定目标磁盘上注册工程文件夹。`generate_windows_config.py` 还会生成 `OpenSystemSyncDashboard.generated.url`，Windows 可在 companion 尚未恢复时直接打开 Mac 统一控制台。
+`setup.ps1` 会在需要时请求管理员权限，然后安装 companion、创建防火墙规则、计划任务、Startup 兜底项、桌面入口和开始菜单入口。Companion 默认监听 TCP 8766，用于回报设备/磁盘状态、记录 Windows 可暴露的电源事件，并在选定目标磁盘上注册工程文件夹。`generate_windows_config.py` 还会生成 `OpenSystemSyncDashboard.generated.url`，Windows 可在 companion 尚未恢复时直接打开 Mac 统一控制台。
 
-The companion listens on TCP 8766, reports device and disk state, records power events when Windows exposes them, and registers project folders on the selected target disk. `generate_windows_config.py` also creates `OpenSystemSyncDashboard.generated.url` so Windows can open the unified Mac dashboard even before the companion is restored.
+`setup.ps1` requests administrator permission when needed, then installs the companion, firewall rule, scheduled task, Startup fallback, desktop entry, and Start Menu entry. The companion listens on TCP 8766, reports device and disk state, records power events when Windows exposes them, and registers project folders on the selected target disk. `generate_windows_config.py` also creates `OpenSystemSyncDashboard.generated.url` so Windows can open the unified Mac dashboard even before the companion is restored.
 
 ## 配对更多设备 / Pairing More Devices
 

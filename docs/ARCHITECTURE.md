@@ -16,6 +16,10 @@ Windows browser
   -> OpenDashboard.ps1 smart launcher
   -> /auth token cookie
   -> Mac dashboard server on TCP 8765
+Post-clone setup
+  -> setup.sh on macOS
+  -> setup.ps1 on Windows
+  -> persistent OS launcher for each endpoint
 ```
 
 ## 组件 / Components
@@ -28,6 +32,10 @@ Windows browser
 - `/api/normalizations` and `/api/normalizations/report`: scan and read `_CrossPlatformReport` folders so the web UI can manage normalized copies and rename mappings in one place.
 - `dependency_auditor.py`：工程依赖扫描器，负责 Adobe 文件、Unity 工程、字体、插件、外部路径线索和 `_DependencyBundle` 打包。
 - `dependency_auditor.py`: project dependency scanner for Adobe files, Unity projects, fonts, plugins, external path signals, and `_DependencyBundle` packaging.
+- `setup.sh`：macOS clone 后一键安装入口，负责配置初始化、后台服务、Dock 入口、Windows 配对包生成和同步目录复制。
+- `setup.sh`: one-click post-clone macOS setup for config initialization, background service, Dock entry, Windows pairing package generation, and sync-folder copying.
+- `setup.ps1`：Windows clone 后一键安装入口，负责定位配对配置、自动请求管理员权限、安装 companion，并打开图形管理端。
+- `setup.ps1`: one-click post-clone Windows setup that locates the pairing config, requests administrator permission, installs the companion, and opens the graphical dashboard.
 - `scripts/preflight.py`：clone 后部署预检，检查配置、Syncthing、Windows 包和 Unity/Adobe 应用检测。
 - `scripts/preflight.py`: post-clone deployment preflight for config, Syncthing, the Windows package, and Unity/Adobe app detection.
 - `static/`：浏览器控制台前端。
@@ -44,14 +52,14 @@ Windows browser
 - `mac/install-dock-shortcut.sh`: creates or refreshes the macOS Dock `.app` smart launcher and applies the shared app icon.
 - `windows/LanSyncAgent.ps1`：Windows companion service。
 - `windows/LanSyncAgent.ps1`: Windows companion service.
-- `windows/OpenDashboard.ps1`：Windows 智能启动器，自动测试文字域名和 Mac IP fallback，并用配对 token 打开可操作网页会话。
-- `windows/OpenDashboard.ps1`: Windows smart launcher that tests the friendly alias and Mac IP fallback, then opens an authenticated browser session with the pairing token.
+- `windows/OpenDashboard.ps1`：Windows 智能启动器，优先测试 Mac 局域网 IP，再尝试文字域名 fallback，并用配对 token 打开可操作网页会话。
+- `windows/OpenDashboard.ps1`: Windows smart launcher that tests the Mac LAN IP first, then the friendly alias fallback, and opens an authenticated browser session with the pairing token.
 - `windows/DependencyScan.ps1`：Windows 字体、Adobe 应用、Unity Editor 和插件清单扫描函数，供 companion API 和独立检查脚本复用。
 - `windows/DependencyScan.ps1`: Windows font, Adobe app, Unity Editor, and plugin inventory functions shared by the companion API and standalone check script.
-- `windows/install-agent.ps1`：Windows 安装器、防火墙规则、计划任务和桌面唤醒快捷方式。
-- `windows/install-agent.ps1`: Windows installer, firewall rule, scheduled task, and desktop wake shortcut.
-- `windows/install-agent.ps1` 还会把 `dashboard_alias` 映射到 Mac IP，并生成文字域名网页管理快捷方式。
-- `windows/install-agent.ps1` also maps `dashboard_alias` to the Mac IP and creates the friendly-domain dashboard shortcut.
+- `windows/install-agent.ps1`：Windows 安装器、防火墙规则、计划任务、Startup 兜底、桌面/开始菜单 SystemSync 入口和本机 companion 唤醒入口。
+- `windows/install-agent.ps1`: Windows installer, firewall rule, scheduled task, Startup fallback, desktop/Start Menu SystemSync entry, and local companion wake entry.
+- `windows/setup.ps1`：可随 `windows/` 工具包同步到 Windows 的自包含一键安装入口。
+- `windows/setup.ps1`: self-contained one-click setup entry that can travel with the synced `windows/` package.
 - `generate_windows_config.py`：生成带 token 的 Windows companion 配置。
 - `generate_windows_config.py`: writes the tokenized Windows companion config.
 

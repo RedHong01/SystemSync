@@ -9,13 +9,16 @@ This flow is for first-time GitHub clone users. The goal is to recreate the full
 ```sh
 git clone https://github.com/RedHong01/SystemSync.git
 cd SystemSync
-python3 scripts/preflight.py
-cp config.example.json config.json
+./setup.sh
 ```
 
-编辑 `config.json`，至少填写：
+`setup.sh` 会在缺少 `config.json` 时从 `config.example.json` 创建一份配置，并安装/刷新 Mac 后台服务、Dock 图形入口和 Windows 配对工具包。
 
-Edit `config.json` and fill at least:
+`setup.sh` creates `config.json` from `config.example.json` when needed, then installs/refreshes the Mac background service, Dock launcher, and Windows pairing package.
+
+编辑或确认 `config.json`，至少填写：
+
+Edit or confirm `config.json` and fill at least:
 
 - `local_device_id`：Mac Syncthing device ID。 / Mac Syncthing device ID.
 - `remote_device_id`：Windows Syncthing device ID。 / Windows Syncthing device ID.
@@ -25,16 +28,15 @@ Edit `config.json` and fill at least:
 - `sync_root`：Mac 同步根目录。 / Mac sync root.
 - `remote_project_base`：Windows 工程根目录，例如 `D:\LanSyncProjects`。 / Windows project root, such as `D:\LanSyncProjects`.
 
-安装并启动控制台：
+再次运行一键安装，确保配置进入后台服务：
 
-Install and start the dashboard:
+Run one-click setup again so the filled config is installed into the background service:
 
 ```sh
-./install-mac-service.sh
-./mac/install-dock-shortcut.sh
+./setup.sh
 ```
 
-打开：
+打开方式：
 
 Open:
 
@@ -42,23 +44,31 @@ Open:
 http://127.0.0.1:8765
 ```
 
+Mac 重启后，Dock 里的 `SystemSync` 会继续作为一键图形入口。
+
+After Mac restart, the Dock `SystemSync` app remains the one-click graphical entry.
+
 ## 2. Windows 节点准备 / Prepare Windows
 
-在 Mac 上生成 Windows 配置：
+`./setup.sh` 会自动在 Mac 上生成 Windows 配置。手动兜底命令是：
 
-Generate the Windows config on the Mac:
+`./setup.sh` automatically generates the Windows config on the Mac. The manual fallback command is:
 
 ```sh
 python3 generate_windows_config.py
 ```
 
-把整个 `windows/` 文件夹复制到 Windows，然后以管理员 PowerShell 运行：
+如果 `sync_root` 已配置并存在，`./setup.sh` 会自动把整个 `windows/` 工具包复制到 `<sync_root>/_tools/SystemSyncWindows`。也可以手动把整个 `windows/` 文件夹复制到 Windows。然后在 Windows 上运行：
 
-Copy the whole `windows/` folder to Windows, then run in Administrator PowerShell:
+If `sync_root` is configured and exists, `./setup.sh` automatically copies the whole `windows/` package to `<sync_root>/_tools/SystemSyncWindows`. You can also copy the whole `windows/` folder to Windows manually. Then run on Windows:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\install-agent.ps1
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
 ```
+
+`setup.ps1` 会在需要时请求管理员权限。安装后，Windows 桌面和开始菜单都会有 `SystemSync` 图形入口；重启后继续可用。
+
+`setup.ps1` requests administrator permission when needed. After installation, Windows gets a `SystemSync` graphical entry on the desktop and Start Menu; it remains available after restart.
 
 安装后 Windows 会得到：
 

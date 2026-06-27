@@ -2,34 +2,28 @@
 
 ## Mac 控制端 / Mac Controller
 
-0. Clone 后先运行预检。 / After cloning, run preflight first:
+0. Clone 后运行一键安装。 / After cloning, run one-click setup:
 
 ```sh
-python3 scripts/preflight.py
+./setup.sh
 ```
 
 1. 安装并启动 Syncthing。 / Install and start Syncthing.
-2. 复制 `config.example.json` 为 `config.json`。 / Copy `config.example.json` to `config.json`.
-3. 填写本机和远端设备 ID、局域网 IP、MAC 地址和同步根目录。 / Fill in the local and remote device IDs, LAN IPs, MAC addresses, and sync roots.
-4. 启动控制台。 / Start the dashboard:
+2. 填写或确认本机和远端设备 ID、局域网 IP、MAC 地址和同步根目录。 / Fill in or confirm the local and remote device IDs, LAN IPs, MAC addresses, and sync roots.
+3. 再运行一键安装，让配置进入后台服务并生成 Windows 工具包。 / Run one-click setup again so the config is installed into the background service and the Windows package is generated:
 
 ```sh
-python3 server.py
+./setup.sh
 ```
 
-5. 安装为登录后自动启动服务。 / Install it as a login service:
+重复运行安装脚本会更新服务代码，但会保留安装目录中的 `config.json` 和 `runtime-state.json`。`setup.sh` 还会刷新 Dock 入口，并在 `sync_root` 存在时把 Windows 工具包复制到 `_tools/SystemSyncWindows`。
+
+Running setup again updates the service code while preserving `config.json` and `runtime-state.json` in the installed directory. `setup.sh` also refreshes the Dock launcher and copies the Windows package to `_tools/SystemSyncWindows` when `sync_root` exists.
+
+手动排错时，也可以分别运行服务和 Dock 安装脚本。 / For manual troubleshooting, you can still run the service and Dock installers separately:
 
 ```sh
 ./install-mac-service.sh
-```
-
-重复运行安装脚本会更新服务代码，但会保留安装目录中的 `config.json` 和 `runtime-state.json`。
-
-Running the installer again updates the service code while preserving `config.json` and `runtime-state.json` in the installed directory.
-
-6. 可选 Dock 智能启动器。脚本会生成 macOS `.app`，自动检测本机 dashboard、文字域名和局域网 fallback；它也会生成 `.icns` 图标并刷新 Dock，如果网页中已上传 PNG/JPG 自定义图标，脚本会优先使用它。 / Optional Dock smart launcher. The script creates a macOS `.app` that detects the local dashboard, friendly alias, and LAN fallbacks; it also generates the `.icns` icon and refreshes the Dock, preferring any PNG/JPG custom icon uploaded from the web UI:
-
-```sh
 ./mac/install-dock-shortcut.sh
 ```
 
@@ -57,23 +51,23 @@ If Windows cannot open it, check:
 - The Mac firewall allows inbound TCP 8765.
 - Windows 与 Mac 在同一个局域网内。
 - Windows and Mac are on the same LAN.
-- `C:\Windows\System32\drivers\etc\hosts` 中存在 `system-sync.local` 到 Mac IP 的映射；如果 Mac IP 变化，重新运行 `python3 generate_windows_config.py` 并重跑 Windows installer。
-- `C:\Windows\System32\drivers\etc\hosts` contains the `system-sync.local` to Mac IP mapping; if the Mac IP changes, rerun `python3 generate_windows_config.py` and then rerun the Windows installer.
+- 如果你想用 `system-sync.local`，确认 `C:\Windows\System32\drivers\etc\hosts` 中存在到 Mac IP 的映射；否则直接使用 Mac 局域网 IP。
+- If you want to use `system-sync.local`, confirm `C:\Windows\System32\drivers\etc\hosts` contains the mapping to the Mac IP; otherwise use the Mac LAN IP directly.
 
 ## Windows 节点 / Windows Node
 
 1. 安装 Syncthing，并确认本地 GUI 可以打开。 / Install Syncthing and confirm the local GUI works.
-2. 在 Mac 上运行。 / Run this on the Mac:
+2. 在 Mac 上运行一键安装，生成并同步 Windows 工具包。 / Run one-click setup on the Mac to generate and sync the Windows package:
 
 ```sh
-python3 generate_windows_config.py
+./setup.sh
 ```
 
-3. 把 `windows` 文件夹复制到 Windows 机器。 / Copy the `windows` folder to the Windows machine.
-4. 在该文件夹内打开管理员 PowerShell。 / Open Administrator PowerShell in that folder:
+3. 在 Windows 上进入同步来的 `_tools\SystemSyncWindows`，或手动复制来的 `windows` 文件夹。 / On Windows, enter the synced `_tools\SystemSyncWindows` folder or a manually copied `windows` folder.
+4. 运行一键安装；脚本会在需要时请求管理员权限。 / Run one-click setup; the script requests administrator permission when needed:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\install-agent.ps1
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
 ```
 
 5. 确认 Windows 防火墙允许 TCP 8766 和 Syncthing 端口。 / Confirm Windows firewall allows TCP 8766 and Syncthing ports.
