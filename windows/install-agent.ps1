@@ -184,7 +184,6 @@ if (-not [string]::IsNullOrWhiteSpace([string]$bundle.DashboardAliasUrl) -and
     -not [string]::IsNullOrWhiteSpace([string]$bundle.MacIp)) {
     try {
         $hostsAlias = Set-DashboardHostsAlias -Alias ([string]$bundle.DashboardAlias) -IpAddress ([string]$bundle.MacIp)
-        $dashboardEntryUrl = ([string]$bundle.DashboardAliasUrl).TrimEnd("/")
     }
     catch {
         Write-Warning "无法写入网页管理端文字域名，将继续使用 IP 地址快捷方式。错误：$($_.Exception.Message)"

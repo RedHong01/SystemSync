@@ -58,7 +58,19 @@ EOF
 
 launchctl bootout "gui/$UID/$LEGACY_LABEL" 2>/dev/null || true
 launchctl bootout "gui/$UID/$LABEL" 2>/dev/null || true
-launchctl bootstrap "gui/$UID" "$PLIST"
+BOOTSTRAPPED=0
+for attempt in 1 2 3; do
+    if launchctl bootstrap "gui/$UID" "$PLIST"; then
+        BOOTSTRAPPED=1
+        break
+    fi
+    sleep 1
+    launchctl bootout "gui/$UID/$LABEL" 2>/dev/null || true
+done
+if [[ "$BOOTSTRAPPED" != "1" ]]; then
+    echo "SystemSync LaunchAgent bootstrap failed after retrying." >&2
+    exit 1
+fi
 launchctl enable "gui/$UID/$LABEL"
 launchctl kickstart -k "gui/$UID/$LABEL"
 

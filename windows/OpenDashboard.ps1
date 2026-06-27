@@ -95,7 +95,6 @@ function Show-OpenDashboardError {
 $config = Read-DashboardConfig -Path $ConfigPath
 $candidates = [System.Collections.Generic.List[object]]::new()
 
-Add-Candidate -Items $candidates -Url ([string]$config.DashboardAliasUrl) -Label "friendly alias"
 Add-Candidate -Items $candidates -Url ([string]$config.DashboardUrl) -Label "Mac LAN URL"
 
 if (-not [string]::IsNullOrWhiteSpace([string]$config.MacIp)) {
@@ -110,6 +109,8 @@ if (-not [string]::IsNullOrWhiteSpace([string]$config.MacIp)) {
     }
     Add-Candidate -Items $candidates -Url ("http://{0}:{1}" -f [string]$config.MacIp, $port) -Label "Mac IP fallback"
 }
+
+Add-Candidate -Items $candidates -Url ([string]$config.DashboardAliasUrl) -Label "friendly alias"
 
 $reachable = $null
 foreach ($candidate in $candidates) {

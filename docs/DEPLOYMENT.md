@@ -39,9 +39,9 @@ You can also click `Install/Refresh Dock Shortcut` on the dashboard `Pairing` pa
 
 ## 网页访问地址 / Web Dashboard URL
 
-控制台网页由 Mac 控制端提供。Mac 本机推荐使用 Dock 里的 `SystemSync` 智能启动器，它会优先打开 `http://127.0.0.1:8765`，必要时尝试 `system-sync.local` 和 Mac 局域网 IP fallback。Windows companion installer 会安装 `OpenDashboard.ps1` 智能启动器，并创建桌面/开始菜单入口；启动器会依次测试 `system-sync.local`、Mac 局域网 IP 和配置里的 fallback，找到可用地址后用 companion token 建立浏览器会话。生成的 `OpenSystemSyncDashboard.generated.url` 是 Windows companion 尚未运行时的 Mac IP 直连兜底入口。
+控制台网页由 Mac 控制端提供。Mac 本机推荐使用 Dock 里的 `SystemSync` 智能启动器，它会优先打开 `http://127.0.0.1:8765`，再尝试 Mac 局域网 IP 和可选别名。Windows companion installer 会安装 `OpenDashboard.ps1` 智能启动器，并创建桌面/开始菜单入口；启动器会优先测试 Mac 局域网 IP，再尝试 `system-sync.local` 可选别名，找到可用地址后用 companion token 建立浏览器会话。生成的 `OpenSystemSyncDashboard.generated.url` 是 Windows companion 尚未运行时的 Mac IP 直连兜底入口。
 
-The dashboard is served by the Mac controller. On the Mac, prefer the Dock `SystemSync` smart launcher; it opens `http://127.0.0.1:8765` first, then tries `system-sync.local` and Mac LAN IP fallbacks if needed. The Windows companion installer installs the `OpenDashboard.ps1` smart launcher and creates desktop/Start Menu entries; the launcher tests `system-sync.local`, the Mac LAN IP, and configured fallbacks, then opens the reachable dashboard with the companion token. The generated `OpenSystemSyncDashboard.generated.url` is a direct fallback to the Mac IP dashboard for cases where the Windows companion is not running yet.
+The dashboard is served by the Mac controller. On the Mac, prefer the Dock `SystemSync` smart launcher; it opens `http://127.0.0.1:8765` first, then tries the Mac LAN IP and the optional alias if needed. The Windows companion installer installs the `OpenDashboard.ps1` smart launcher and creates desktop/Start Menu entries; the launcher tests the Mac LAN IP first, then tries the optional `system-sync.local` alias, and opens the reachable dashboard with the companion token. The generated `OpenSystemSyncDashboard.generated.url` is a direct fallback to the Mac IP dashboard for cases where the Windows companion is not running yet.
 
 如果 hosts 别名不可用，双端启动器都会自动退回可用地址。手动输入时，Mac 本机可用 `http://127.0.0.1:8765`；Windows 或其他设备使用 Pairing 页面列出的 Mac 局域网地址，例如 `http://192.168.0.243:8765`。不要在 Windows 上使用 `http://127.0.0.1:8765`，因为它指向 Windows 自己。
 

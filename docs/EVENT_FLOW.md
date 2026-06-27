@@ -39,7 +39,7 @@ This page describes the full event flow from cloning the repo to two-end sync, n
 
 1. 控制台定期调用 `/api/update/check`。 / The dashboard periodically calls `/api/update/check`.
 2. Server 查询配置的 GitHub release。 / The server checks the configured GitHub release.
-3. 当 release 版本大于 `current_version` 时，UI 显示更新预览气泡。 / When the release version is newer than `current_version`, the UI shows an update preview bubble.
+3. 当 release 版本大于服务内置 `APP_VERSION` 时，UI 显示更新预览气泡。 / When the release version is newer than the service's built-in `APP_VERSION`, the UI shows an update preview bubble.
 
 ## 6. 失败边界 / Failure Boundaries
 

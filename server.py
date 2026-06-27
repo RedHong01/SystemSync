@@ -37,7 +37,7 @@ CUSTOM_ICON_META_PATH = RUNTIME_ASSET_DIR / "app-icon.json"
 CONFIG_PATH = APP_DIR / "config.json"
 STATE_PATH = APP_DIR / "runtime-state.json"
 APP_DISPLAY_NAME = "SystemSync"
-APP_VERSION = "0.1.5"
+APP_VERSION = "0.1.6"
 ICON_UPLOAD_TYPES = {
     "image/png": ("png", b"\x89PNG\r\n\x1a\n"),
     "image/jpeg": ("jpg", b"\xff\xd8"),
@@ -152,6 +152,7 @@ def dashboard_urls(config):
 
 def public_config(config):
     value = {key: item for key, item in config.items() if key != "shared_token"}
+    value["current_version"] = APP_VERSION
     value["dashboard_urls"] = dashboard_urls(config)
     value["icon"] = current_icon_info()
     return value
@@ -1393,7 +1394,7 @@ def github_api(path):
 def check_github_update():
     config = load_config()
     repo = str(config.get("github_repo") or "").strip()
-    current_version = str(config.get("current_version") or APP_VERSION)
+    current_version = APP_VERSION
     if not repo:
         return {
             "configured": False,

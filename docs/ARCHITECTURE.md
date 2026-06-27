@@ -67,8 +67,8 @@ Windows browser
 - The dashboard is designed for trusted LAN use, not public internet exposure.
 - Syncthing 仍然是文件同步引擎；本项目负责设置编排、可视化和工程卫生检查。
 - Syncthing remains the file synchronization engine; this project orchestrates setup, visibility, and project hygiene.
-- 网页客户端由 Mac 控制端提供；其他设备可以使用 hosts 别名 `system-sync.local` 或 Mac 局域网 IP。`127.0.0.1` 只代表当前正在使用的那台电脑。
-- The web client is served by the Mac controller; other devices can use the hosts alias `system-sync.local` or the Mac LAN IP. `127.0.0.1` only means the computer currently using it.
+- 网页客户端由 Mac 控制端提供；其他设备推荐使用 Mac 局域网 IP，hosts 别名 `system-sync.local` 只是可选入口。`127.0.0.1` 只代表当前正在使用的那台电脑。
+- The web client is served by the Mac controller; other devices should prefer the Mac LAN IP, while the hosts alias `system-sync.local` is only an optional entry. `127.0.0.1` only means the computer currently using it.
 
 ## 工程安全 / Project Safety
 

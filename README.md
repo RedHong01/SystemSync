@@ -28,8 +28,8 @@ SystemSync is a local-first LAN control panel for a Mac/Windows Syncthing pair. 
 - Sends Wake-on-LAN packets when firmware and network settings support it.
 - 提供新电脑或 Android Syncthing 客户端的配对页面。
 - Provides a pairing page for new computers or Android Syncthing clients.
-- Mac Dock 与 Windows 桌面/开始菜单使用同一类 `SystemSync` 智能启动器：自动测试本机、文字域名和局域网 IP，并打开可操作的网页管理端。
-- The Mac Dock and Windows desktop/Start Menu use the same kind of `SystemSync` smart launcher: it tests localhost, the friendly alias, and LAN IP fallbacks, then opens the authenticated dashboard.
+- Mac Dock 与 Windows 桌面/开始菜单使用同一类 `SystemSync` 智能启动器：Mac 本机优先用 `127.0.0.1`，Windows/其他设备优先用 Mac 局域网 IP，`system-sync.local` 只是 hosts 可用时的可选别名。
+- The Mac Dock and Windows desktop/Start Menu use the same kind of `SystemSync` smart launcher: Mac prefers `127.0.0.1`, Windows and other devices prefer the Mac LAN IP, and `system-sync.local` is only an optional alias when hosts is configured.
 - 检查配置的 GitHub 仓库是否有新版本，并显示更新预览气泡。
 - Checks the configured GitHub repository for newer tool architecture releases and shows an update preview bubble.
 - 支持网页控制台中文/英文切换。
@@ -132,14 +132,13 @@ Open the dashboard, go to `Pairing`, copy the Mac Syncthing device ID and LAN da
 
 ## GitHub 更新预览 / GitHub Update Preview
 
-在 `config.json` 中设置 `github_repo` 和 `current_version`：
+在 `config.json` 中设置 `github_repo`；当前运行版本由程序内置 `APP_VERSION` 决定：
 
-Set `github_repo` and `current_version` in `config.json`:
+Set `github_repo` in `config.json`; the current running version comes from the built-in `APP_VERSION`:
 
 ```json
 {
-  "github_repo": "RedHong01/SystemSync",
-  "current_version": "0.1.5"
+  "github_repo": "RedHong01/SystemSync"
 }
 ```
 
